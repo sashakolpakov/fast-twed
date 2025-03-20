@@ -27,7 +27,7 @@ def twed(a, b, ts_a=None, ts_b=None, nu=0.001, lam=1.0, path_out=False):
     if isinstance(a, pd.DataFrame) and isinstance(b, pd.DataFrame):
         return _twed_dataframe(a, b, nu, lam, path_out)
     # Check if both inputs are not DataFrames (assume numpy arrays or similar)
-    elif isinstance(a, np.array) and not isinstance(b, np.array):
+    elif isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
         return _twed_ndarray(a, b, ts_a, ts_b, nu, lam, path_out)
     else:
         # If one is a DataFrame and the other is not, raise an error.

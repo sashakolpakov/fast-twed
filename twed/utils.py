@@ -1,24 +1,22 @@
 import numpy as np
-from numba import jit
+from numba import jit, prange
+
 
 # Padding functions for time series arrays
 
 
-def mypad1s(ar):
-    res = np.zeros(ar.shape[0]+1)
+@jit(nopython=True)
+def pad1d(ar):
+    res = np.zeros(ar.shape[0] + 1)
     res[1:res.shape[0]] = ar
     return res
 
 
-def mypad2s(ar):
-    res = np.zeros((ar.shape[0]+1, ar.shape[1]))
-    res[1:res.shape[0],:] = ar
+@jit(nopython=True)
+def pad2d(ar):
+    res = np.zeros((ar.shape[0] + 1, ar.shape[1]))
+    res[1:res.shape[0], :] = ar
     return res
-
-
-# jitified padding functions
-mypad1s_jit = jit(mypad1s)
-mypad2s_jit = jit(mypad2s)
 
 
 @jit(nopython=True, fastmath=True)
@@ -31,7 +29,7 @@ def _dist_lp(a, b, p=2):
     :param p: Order of the norm (default is 2).
     :return: The l_p distance between a and b.
     """
-    return np.linalg.norm(a-b, p)
+    return np.sqrt(np.sum(np.abs(a - b) ** p))
 
 
 @jit(nopython=True, fastmath=True)
@@ -70,57 +68,54 @@ def _twed(a, b, ts_a, ts_b, nu, lam):
         raise ValueError("Parameter lambda must be non-negative.")
 
     m = a.shape[0]
-    a = mypad2s_jit(a)
-    ts_a = mypad1s_jit(ts_a)
+    a = pad2d(a)
+    ts_a = pad1d(ts_a)
 
     n = b.shape[0]
-    b = mypad2s_jit(b)
-    ts_b = mypad1s_jit(ts_b)
+    b = pad2d(b)
+    ts_b = pad1d(ts_b)
 
-    # Dynamical programming
     dyn = np.zeros((m, n))
-
-    # Initialize the dynamic programming matrix
-    # and set first row and column to infinity
     dyn[0, :] = np.inf
     dyn[:, 0] = np.inf
     dyn[0, 0] = 0.0
 
-    # Compute minimal cost
-    for i in range(1, m):
-        for j in range(1, n):
-            # Calculate and save cost of various operations
-            c = np.ones((3, 1)) * np.inf
-            # Deletion in A
-            c[0] = (
-                dyn[i - 1, j]
-                + _dist_lp(a[i - 1], a[i])
-                + nu * np.abs(ts_a[i] - ts_a[i - 1])
-                + lam
+    for i in prange(1, m):
+        for j in prange(1, n):
+            # Compute cost for deletion in A
+            cost_del_a = (
+                    dyn[i - 1, j]
+                    + _dist_lp(a[i - 1], a[i])
+                    + nu * np.abs(ts_a[i] - ts_a[i - 1])
+                    + lam
             )
-            # Deletion in B
-            c[1] = (
-                dyn[i, j - 1]
-                + _dist_lp(b[j - 1], b[j])
-                + nu * np.abs(ts_b[j] - ts_b[j - 1])
-                + lam
+            # Compute cost for deletion in B
+            cost_del_b = (
+                    dyn[i, j - 1]
+                    + _dist_lp(b[j - 1], b[j])
+                    + nu * np.abs(ts_b[j] - ts_b[j - 1])
+                    + lam
             )
-            # Keep data points in both time series
-            ts_diff = (np.abs(ts_a[i] - ts_b[j]) +
-                       np.abs(ts_a[i - 1] - ts_b[j - 1]))
-            c[2] = (
-                dyn[i - 1, j - 1]
-                + _dist_lp(a[i], b[j])
-                + _dist_lp(a[i - 1], b[j - 1])
-                + nu * ts_diff
+            # Compute cost for matching (keeping both points)
+            ts_diff = np.abs(ts_a[i] - ts_b[j]) + np.abs(ts_a[i - 1] - ts_b[j - 1])
+            cost_match = (
+                    dyn[i - 1, j - 1]
+                    + _dist_lp(a[i], b[j])
+                    + _dist_lp(a[i - 1], b[j - 1])
+                    + nu * ts_diff
             )
-            # Choose the operation with the minimal cost and update DP Matrix
-            dyn[i, j] = np.min(c)
+            # Update with the minimal cost using scalar comparisons
+            if cost_del_a <= cost_del_b and cost_del_a <= cost_match:
+                dyn[i, j] = cost_del_a
+            elif cost_del_b <= cost_match:
+                dyn[i, j] = cost_del_b
+            else:
+                dyn[i, j] = cost_match
 
     return dyn[m - 1, n - 1], dyn
 
 
-@jit(nopython=True, fastmath=True)
+@jit(nopython=True)
 def _backtracking(dyn):
     """
     Compute the most cost-efficient edit path between two time series.
@@ -142,40 +137,24 @@ def _backtracking(dyn):
     i = dim[0] - 1
     j = dim[1] - 1
 
-    # The indices of the paths are saved in the opposite direction
     best_path = []
-    steps = 0
-
     while i != 0 or j != 0:
         best_path.append((i - 1, j - 1))
 
-        c = np.ones((3, 1)) * np.inf
+        # Compute costs without creating an array
+        cost_keep = dyn[i - 1, j - 1]
+        cost_del_a = dyn[i - 1, j]
+        cost_del_b = dyn[i, j - 1]
 
-        # Keep data points in both time series
-        c[0] = dyn[i - 1, j - 1]
-        # Deletion in A
-        c[1] = dyn[i - 1, j]
-        # Deletion in B
-        c[2] = dyn[i, j - 1]
-
-        # Find the index for the lowest cost
-        idx = np.argmin(c)
-
-        if idx == 0:
-            # Keep data points in both time series
-            i = i - 1
-            j = j - 1
-        elif idx == 1:
-            # Deletion in A
-            i = i - 1
-            j = j
+        # Determine the direction with the minimal cost
+        if cost_keep <= cost_del_a and cost_keep <= cost_del_b:
+            i -= 1
+            j -= 1
+        elif cost_del_a <= cost_del_b:
+            i -= 1
         else:
-            # Deletion in B
-            i = i
-            j = j - 1
-        steps = steps + 1
+            j -= 1
 
     best_path.append((i - 1, j - 1))
     best_path.reverse()
-
     return best_path[1:]
