@@ -62,6 +62,9 @@ def _twed(a, b, ts_a, ts_b, p, nu, lam):
     :raises ValueError: If either `nu` or `lam` is negative.
     """
 
+    if p < 1:
+        raise ValueError("Parameter p must be at least 1.0.")
+
     if nu < 0:
         raise ValueError("Parameter nu must be non-negative.")
 
