@@ -27,12 +27,13 @@ def twed(a, b, ts_a=None, ts_b=None, p=2, nu=0.001, lam=1.0, path_out=False):
     # Check if both inputs are DataFrames
     if isinstance(a, pd.DataFrame) and isinstance(b, pd.DataFrame):
         return _twed_dataframe(a, b, p, nu, lam, path_out)
+
     # Check if both inputs are not DataFrames (assume numpy arrays or similar)
-    elif isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
+    if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
         return _twed_ndarray(a, b, ts_a, ts_b, p, nu, lam, path_out)
-    else:
-        # If one is a DataFrame and the other is not, raise an error.
-        raise TypeError("Both inputs must be either pandas DataFrames or numpy arrays.")
+
+    # If one is a DataFrame and the other is not, raise an error.
+    raise TypeError("Both inputs must be either pandas DataFrames or numpy arrays.")
 
 
 def _twed_dataframe(df_a, df_b, p, nu, lam, path_out):
@@ -52,17 +53,17 @@ def _twed_dataframe(df_a, df_b, p, nu, lam, path_out):
     """
 
     # Extract data and time indices from DataFrames
-    a = df_a.values.astype('float32')
-    b = df_b.values.astype('float32')
-    ts_a = np.array(df_a.index, dtype='float32')
-    ts_b = np.array(df_b.index, dtype='float32')
-
-    out = _twed(a, b, ts_a, ts_b, p, nu, lam)
+    # and process them with the backend TWED function
+    out = _twed(df_a.values.astype('float32'),
+                df_b.values.astype('float32'),
+                np.array(df_a.index, dtype='float32'),
+                np.array(df_b.index, dtype='float32'),
+                p, nu, lam)
 
     if path_out:
         return out[0], _backtracking(out[1])
-    else:
-        return out[0]
+
+    return out[0]
 
 
 def _twed_ndarray(a, b, ts_a, ts_b, p, nu, lam, path_out):
@@ -94,5 +95,5 @@ def _twed_ndarray(a, b, ts_a, ts_b, p, nu, lam, path_out):
 
     if path_out:
         return out[0], _backtracking(out[1])
-    else:
-        return out[0]
+
+    return out[0]
