@@ -296,7 +296,7 @@
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">twed</span><span class="function-signature">(a, b, ts_a=None, ts_b=None, nu=0.001, lam=1.0, path_out=False)</span>:
+    <span class="py-keyword">def</span> <span class="py-defname">twed</span><span class="function-signature">(a, b, ts_a=None, ts_b=None, p=2, nu=0.001, lam=1.0, path_out=False)</span>:
     
     <a class="headerLink" href="#twed" title="twed.twed.twed">
       
@@ -308,7 +308,7 @@
     
     <div><p>Compute the Time Warp Edit Distance (TWED) between two time series.</p>
 <p>This function provides a unified interface for calculating TWED. The time series may be provided either as pandas DataFrames or as numpy arrays. For pandas DataFrames, the index is used as the time stamps. For numpy arrays, if time stamp arrays (`ts_a`, `ts_b`) are not provided, default sequential time stamps are generated.</p>
-<p>:param a: First time series, provided as a pandas DataFrame or a numpy array. :param b: Second time series, provided as a pandas DataFrame or a numpy array. :param ts_a: Optional time stamps for the first time series if `a` is a numpy array. Defaults to None. :param ts_b: Optional time stamps for the second time series if `b` is a numpy array. Defaults to None. :param nu: Non-negative float representing the penalty for temporal differences (default is 0.001). :param lam: Non-negative float representing the penalty for deletion operations (default is 1.0). :param path_out: If True, returns a tuple (TWED, edit_path); otherwise, only the TWED value is returned. :return: The computed TWED value, or a tuple (TWED, edit_path) if `path_out` is True. :raises TypeError: If the input types for `a` and `b` are not both pandas DataFrames or numpy arrays.</p>
+<p>:param a: First time series, provided as a pandas DataFrame or a numpy array. :param b: Second time series, provided as a pandas DataFrame or a numpy array. :param ts_a: Optional time stamps for the first time series if `a` is a numpy array. Defaults to None. :param ts_b: Optional time stamps for the second time series if `b` is a numpy array. Defaults to None. :param p: The l_p distance parameter (default is p=2). :param nu: Non-negative float representing the penalty for temporal differences (default is 0.001). :param lam: Non-negative float representing the penalty for deletion operations (default is 1.0). :param path_out: If True, returns a tuple (TWED, edit_path); otherwise, only the TWED value is returned. :return: The computed TWED value, or a tuple (TWED, edit_path) if `path_out` is True. :raises TypeError: If the input types for `a` and `b` are not both pandas DataFrames or numpy arrays.</p>
 </div>
   </div>
 </div><div class="basefunction private">
@@ -323,7 +323,7 @@
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">_twed_dataframe</span><span class="function-signature">(df_a, df_b, nu, lam, path_out)</span>:
+    <span class="py-keyword">def</span> <span class="py-defname">_twed_dataframe</span><span class="function-signature">(df_a, df_b, p, nu, lam, path_out)</span>:
     
     <a class="headerLink" href="#_twed_dataframe" title="twed.twed._twed_dataframe">
       
@@ -335,7 +335,7 @@
     
     <div><p>Compute the TWED between two time series provided as pandas DataFrames.</p>
 <p>This helper function extracts numerical data and time stamps from the DataFrames, and computes the TWED using an underlying function. Optionally, it returns the optimal edit path determined via backtracking.</p>
-<p>:param df_a: First time series as a pandas DataFrame. :param df_b: Second time series as a pandas DataFrame. :param nu: Non-negative float representing the temporal penalty. :param lam: Non-negative float representing the deletion penalty. :param path_out: Boolean flag indicating whether to return the edit path along with the TWED. :return: The TWED value, or a tuple (TWED, edit_path) if `path_out` is True.</p>
+<p>:param df_a: First time series as a pandas DataFrame. :param df_b: Second time series as a pandas DataFrame. :param p: The l_p distance parameter (p). :param nu: Non-negative float representing the temporal penalty. :param lam: Non-negative float representing the deletion penalty. :param path_out: Boolean flag indicating whether to return the edit path along with the TWED. :return: The TWED value, or a tuple (TWED, edit_path) if `path_out` is True.</p>
 </div>
   </div>
 </div><div class="basefunction private">
@@ -350,7 +350,7 @@
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">_twed_ndarray</span><span class="function-signature">(a, b, ts_a, ts_b, nu, lam, path_out)</span>:
+    <span class="py-keyword">def</span> <span class="py-defname">_twed_ndarray</span><span class="function-signature">(a, b, ts_a, ts_b, p, nu, lam, path_out)</span>:
     
     <a class="headerLink" href="#_twed_ndarray" title="twed.twed._twed_ndarray">
       
@@ -362,7 +362,7 @@
     
     <div><p>Compute the TWED between two time series provided as numpy arrays.</p>
 <p>This helper function computes the TWED for time series given as numpy arrays. If time stamps (`ts_a`, `ts_b`) are not provided, default sequential indices are generated. Optionally, it returns the optimal edit path via backtracking.</p>
-<p>:param a: First time series as a numpy array. :param b: Second time series as a numpy array. :param ts_a: Optional numpy array of time stamps for the first time series. If None, a default range is used. :param ts_b: Optional numpy array of time stamps for the second time series. If None, a default range is used. :param nu: Non-negative float representing the temporal penalty. :param lam: Non-negative float representing the deletion penalty. :param path_out: Boolean flag indicating whether to return the optimal edit path along with the TWED. :return: The TWED value, or a tuple (TWED, edit_path) if `path_out` is True.</p>
+<p>:param a: First time series as a numpy array. :param b: Second time series as a numpy array. :param ts_a: Optional numpy array of time stamps for the first time series. If None, a default range is used. :param ts_b: Optional numpy array of time stamps for the second time series. If None, a default range is used. :param p: The l_p distance parameter (p). :param nu: Non-negative float representing the temporal penalty. :param lam: Non-negative float representing the deletion penalty. :param path_out: Boolean flag indicating whether to return the optimal edit path along with the TWED. :return: The TWED value, or a tuple (TWED, edit_path) if `path_out` is True.</p>
 </div>
   </div>
 </div>
@@ -377,7 +377,7 @@
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for Fast TWED,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2025-03-20 00:33:27.
+    24.11.2 at 2025-03-20 00:49:34.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 

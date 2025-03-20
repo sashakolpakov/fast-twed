@@ -33,7 +33,7 @@ def _dist_lp(a, b, p=2):
 
 
 @jit(nopython=True, fastmath=True)
-def _twed(a, b, ts_a, ts_b, nu, lam):
+def _twed(a, b, ts_a, ts_b, p, nu, lam):
     """
     Compute the Time Warp Edit Distance (TWED) between two time series using dynamic programming.
 
@@ -51,6 +51,7 @@ def _twed(a, b, ts_a, ts_b, nu, lam):
     :param b: Numpy array for the second time series (expected shape: (n, ...)).
     :param ts_a: Numpy array of time stamps corresponding to `a` (length m).
     :param ts_b: Numpy array of time stamps corresponding to `b` (length n).
+    :param p: The l_p distance parameter (p).
     :param nu: Non-negative float; penalty for temporal differences between consecutive points.
     :param lam: Non-negative float; penalty for deletion operations.
 
@@ -85,14 +86,14 @@ def _twed(a, b, ts_a, ts_b, nu, lam):
             # Compute cost for deletion in A
             cost_del_a = (
                     dyn[i - 1, j]
-                    + _dist_lp(a[i - 1], a[i])
+                    + _dist_lp(a[i - 1], a[i], p)
                     + nu * np.abs(ts_a[i] - ts_a[i - 1])
                     + lam
             )
             # Compute cost for deletion in B
             cost_del_b = (
                     dyn[i, j - 1]
-                    + _dist_lp(b[j - 1], b[j])
+                    + _dist_lp(b[j - 1], b[j], p)
                     + nu * np.abs(ts_b[j] - ts_b[j - 1])
                     + lam
             )
@@ -100,8 +101,8 @@ def _twed(a, b, ts_a, ts_b, nu, lam):
             ts_diff = np.abs(ts_a[i] - ts_b[j]) + np.abs(ts_a[i - 1] - ts_b[j - 1])
             cost_match = (
                     dyn[i - 1, j - 1]
-                    + _dist_lp(a[i], b[j])
-                    + _dist_lp(a[i - 1], b[j - 1])
+                    + _dist_lp(a[i], b[j], p)
+                    + _dist_lp(a[i - 1], b[j - 1], p)
                     + nu * ts_diff
             )
             # Update with the minimal cost using scalar comparisons
