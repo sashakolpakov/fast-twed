@@ -1,7 +1,7 @@
 ## Time Warp Edit Distance (TWED) Library
 
 A high-performance Python library for computing the **Time Warp Edit Distance (TWED)** 
-between time series. This implementation leverages **Numba** for just-in-time (JIT) 
+between time series [*]. This implementation leverages **Numba** for just-in-time (JIT) 
 compilation, offering significant speed-ups for dynamic programming and backtracking operations. 
 The library supports both NumPy arrays and pandas DataFrames.
 
@@ -68,6 +68,9 @@ print("TWED:", distance)
 print("Edit Path:", edit_path)
 ```
    
+### References 
+
+[*] Marteau, Pierre-François. "Time warp edit distance with stiffness adjustment for time series matching." IEEE transactions on pattern analysis and machine intelligence 31.2 (2008): 306-318; http://dx.doi.org/10.1109/TPAMI.2008.76.
 
    
 

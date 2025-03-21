@@ -18,7 +18,7 @@ core_deps = [
 
 setup(
     name="fast-twed",
-    version="0.0.0",
+    version="0.0.1",
     author="Alexander Kolpakov, Igor Rivin",
     author_email="akolpakov@uaustin.org, rivin@temple.edu",
     description="A Numba version of TWED",
