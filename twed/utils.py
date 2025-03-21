@@ -1,3 +1,8 @@
+"""
+Utility functions for Fast TWED
+"""
+
+
 import numpy as np
 from numba import jit, prange
 
@@ -7,6 +12,10 @@ from numba import jit, prange
 
 @jit(nopython=True)
 def pad1d(ar):
+    """
+    :param ar: 1D Array
+    :return: Array padded with zeros
+    """
     res = np.zeros(ar.shape[0] + 1)
     res[1:res.shape[0]] = ar
     return res
@@ -14,6 +23,10 @@ def pad1d(ar):
 
 @jit(nopython=True)
 def pad2d(ar):
+    """
+    :param ar: 2D Array
+    :return: Array padded with zeros
+    """
     res = np.zeros((ar.shape[0] + 1, ar.shape[1]))
     res[1:res.shape[0], :] = ar
     return res

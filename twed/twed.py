@@ -1,3 +1,8 @@
+"""
+TWED distance computation based on Numba JIT
+"""
+
+
 import numpy as np
 import pandas as pd
 from .utils import (_twed, _backtracking)

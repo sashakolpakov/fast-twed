@@ -55,7 +55,7 @@ The library supports both NumPy arrays and pandas DataFrames.
 ### Example usage with Numpy arrays
 ```python
 import numpy as np
-from twed import twed  # assuming the main file is named twed.py
+from twed import twed 
 
 # Create example time series data
 a = np.array([[1.0], [2.0], [3.0]])
@@ -70,7 +70,7 @@ distance = twed(a, b, ts_a=ts_a, ts_b=ts_b, nu=0.001, lam=1.0)
 print("TWED:", distance)
 ```
 
-### Example usage with pandas DataFrames
+### Example usage with Pandas DataFrames
 ```python
 import pandas as pd
 from twed import twed
