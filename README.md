@@ -9,7 +9,7 @@ The library supports both NumPy arrays and pandas DataFrames.
 
 - **TWED Calculation:** Compute the TWED between two time series using dynamic programming.
 - **Edit Path Recovery:** Retrieve the optimal sequence of operations (matches or deletions) that align the two time series.
-- **Multi-format Support:** Works with both NumPy arrays and pandas DataFrames (using DataFrame indices as time stamps).
+- **Multi-format Support:** Works with both NumPy arrays (time stamps provided as NumPy arrays or inferred by default) and pandas DataFrames (using DataFrame indices as time stamps).
 - **Performance Optimizations:**  
   - Utilizes Numba JIT for accelerated computation.
   - Minimizes per-iteration memory allocations by replacing array operations with scalar variable comparisons.
@@ -20,8 +20,8 @@ The library supports both NumPy arrays and pandas DataFrames.
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/twed-library.git
-   cd twed-library
+   git clone git@github.com:sashakolpakov/fast-twed.git
+   cd fast-twed
    ````
    
 2. **Create a virtual environment (optional but recommended):**
@@ -30,9 +30,10 @@ The library supports both NumPy arrays and pandas DataFrames.
    source env/bin/activate  # On Windows: env\Scripts\activate
    ```
    
-3. **Install the required dependencies:**
+3. **Install the package:**
     ```bash
-    pip install numpy pandas numba
+    pip install --upgrade pip # Optional
+    pip install -e .
     ```
    
 ### Example usage with Numpy arrays
